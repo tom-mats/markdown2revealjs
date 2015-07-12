@@ -71,19 +71,18 @@ def parse_attribute(line)
     outputs = prev_data.to_s
     raw_attr = ""
     matched.scan(/([A-Z0-9\-_]+)\s*=\s*\"([^\"]+)\"/i) {|attr_data|
-      if prev_data # Slide attribute
+      if prev_data  == ""# Slide attribute
         unless attr_data[0] =~ /title|author|description/
-          raw_attr = "<!-- slide: "
+          raw_attr = "<!-- .slide: "
           attr_data[0] = "data-" + attr_data[0] unless attr_data[0] =~ /^data-/
         else
           raw_attr = "<!-- "
         end
       else
-        raw_attr = "<!-- element: "
+        raw_attr = "<!-- .element: "
       end
       parsed_data.store(attr_data[0], attr_data[1])
     }
-    p parsed_data
     parsed_data.each{|key, val|
       raw_attr += "#{key}=\"#{val}\" "
     }
@@ -98,6 +97,7 @@ end
 title = "test"
 author = "hoge"
 description = "huga"
+
 opts = ARGV.getopts("i:o:", "width:960", "height:700", "theme:black", "transition:slide")
 opts["o"] = "index.html" unless opts["o"]
 opts["i"] = "index.md" unless opts["i"]
@@ -129,7 +129,6 @@ while line = markdown_fp.gets
     author = line_data["author"] if line_data["author"]
     description = line_data["description"] if line_data["description"]
   end
-  p line_data
   slide_data.push(line_data["outputs"])
 end
 
