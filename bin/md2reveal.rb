@@ -64,7 +64,7 @@ erb_slides = <<reveal_slide
 reveal_slide
 def parse_attribute(line)
   parsed_data = Hash.new()
-  if line =~ /<!--\s+(.+)\s+-->/
+  if line =~ /<!--\s*(.+)\s*-->/
     prev_data = $`
     after_data = $'
     matched = $1
