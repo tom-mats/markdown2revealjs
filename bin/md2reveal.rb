@@ -82,15 +82,15 @@ html_fp = File.open(opts["o"], "w")
 slide_data = Array.new()
 current_slide_depth = 0
 next_slide_depth = 0
-is_first_page
+is_first_page = true
 while line = markdown_fp.gets
   if slide_data.size > 0
     case line
     when /^===+$/ then
-      slide_data.insert(-2, "\n===\n\n") if is_first_page is false
+      slide_data.insert(-2, "\n===\n\n") if is_first_page == false
       is_first_page = false
     when /^---+$/ then
-      slide_data.insert(-2, "\n---\n\n") if is_first_page is false
+      slide_data.insert(-2, "\n---\n\n") if is_first_page == false
       is_first_page = false
     end
   end
