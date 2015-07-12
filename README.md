@@ -17,6 +17,7 @@
 ```
 /^¥s*<!--¥s+data-xxx¥s*=¥s*yyy¥s+-->$/
 ```
+
 がきたら
 ```
 /^<!-- .slide: data-xxx=yyy -->$/
@@ -30,6 +31,6 @@
 ```
 を
 ```
-/^¥s*<!-- .element: class="fragment yyy" data-framgment-index="¥d" -->$/
+/^<!-- .element: class="fragment yyy" data-framgment-index="¥d" -->/
 ```
 に差し替える。
