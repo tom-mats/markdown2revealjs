@@ -21,8 +21,14 @@
 ```
 /^<!-- .slide: data-xxx=yyy -->$/
 ```
-
+に差し替える。
 
 ## Item Property
 
-これはそのまま使う
+```
+/<!--¥s+data-xxx¥s*=¥s*yyy¥s+-->/
+```
+```
+/^¥s*<!--¥s+data-xxx¥s*=¥s*yyy¥s+-->$/
+```
+まま使う
