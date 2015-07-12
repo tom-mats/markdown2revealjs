@@ -53,7 +53,7 @@ erb_slides = <<reveal_slide
   			{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
   			{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
   			{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-  			{ src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+  			{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
   			{ src: 'plugin/zoom-js/zoom.js', async: true },
   			{ src: 'plugin/notes/notes.js', async: true }
   		]
@@ -63,7 +63,36 @@ erb_slides = <<reveal_slide
 </html>
 reveal_slide
 def parse_attribute(line)
-  line
+  parsed_data = Hash.new()
+  if line =~ /<!--\s+(.+)\s+-->/
+    prev_data = $`
+    after_data = $'
+    matched = $1
+    outputs = prev_data.to_s
+    raw_attr = ""
+    matched.scan(/([A-Z0-9\-_]+)\s*=\s*\"([^\"]+)\"/i) {|attr_data|
+      if prev_data # Slide attribute
+        unless attr_data[0] =~ /title|author|description/
+          raw_attr = "<!-- slide: "
+          attr_data[0] = "data-" + attr_data[0] unless attr_data[0] =~ /^data-/
+        else
+          raw_attr = "<!-- "
+        end
+      else
+        raw_attr = "<!-- element: "
+      end
+      parsed_data.store(attr_data[0], attr_data[1])
+    }
+    p parsed_data
+    parsed_data.each{|key, val|
+      raw_attr += "#{key}=\"#{val}\" "
+    }
+    raw_attr += "-->\n"
+    parsed_data.store("outputs", outputs + raw_attr)
+  else
+    parsed_data.store("outputs", line)
+  end
+  parsed_data
 end
 
 title = "test"
@@ -94,10 +123,18 @@ while line = markdown_fp.gets
       is_first_page = false
     end
   end
-  slide_data.push(parse_attribute(line))
+  line_data = parse_attribute(line)
+  if is_first_page
+    title = line_data["title"] if line_data["title"]
+    author = line_data["author"] if line_data["author"]
+    description = line_data["description"] if line_data["description"]
+  end
+  p line_data
+  slide_data.push(line_data["outputs"])
 end
 
 slide_contents = slide_data.join("")
+
 erb_data  = ERB.new(erb_slides)
 html_fp << erb_data.result(binding)
 markdown_fp.close
