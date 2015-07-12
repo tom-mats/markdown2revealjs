@@ -70,16 +70,18 @@ def parse_attribute(line)
     matched = $1
     outputs = prev_data.to_s
     raw_attr = ""
-    matched.scan(/([A-Z0-9\-_]+)\s*=\s*\"([^\"]+)\"/i) {|attr_data|
-      if prev_data  == ""# Slide attribute
-        unless attr_data[0] =~ /title|author|description/
-          raw_attr = "<!-- .slide: "
-          attr_data[0] = "data-" + attr_data[0] unless attr_data[0] =~ /^data-/
-        else
-          raw_attr = "<!-- "
-        end
+    if prev_data == ""
+      if matched =~ /title|author|description/
+        raw_attr = "<!-- "
       else
-        raw_attr = "<!-- .element: "
+        raw_attr = "<!-- .slide: "
+      end
+    else
+      raw_attr = "<!-- .element: "
+    end
+    matched.scan(/([A-Z0-9\-_]+)\s*=\s*\"([^\"]+)\"/i) {|attr_data|
+      if raw_attr  =~ /^<!-- .slide+/ && !(attr_data[0] =~ /^data-/)
+        attr_data[0] = "data-" + attr_data[0]
       end
       parsed_data.store(attr_data[0], attr_data[1])
     }
@@ -109,19 +111,15 @@ transition = opts["transition"]
 markdown_fp  = File.open(opts["i"])
 html_fp = File.open(opts["o"], "w")
 slide_data = Array.new()
-current_slide_depth = 0
-next_slide_depth = 0
 is_first_page = true
 while line = markdown_fp.gets
-  if slide_data.size > 0
-    case line
-    when /^===+$/ then
-      slide_data.insert(-2, "\n===\n\n") if is_first_page == false
-      is_first_page = false
-    when /^---+$/ then
-      slide_data.insert(-2, "\n---\n\n") if is_first_page == false
-      is_first_page = false
-    end
+  case line
+  when /^===+$/ then
+    slide_data.insert(-2, "\n===\n\n") if is_first_page == false
+    is_first_page = false
+  when /^---+$/ then
+    slide_data.insert(-2, "\n---\n\n") if is_first_page == false
+    is_first_page = false
   end
   line_data = parse_attribute(line)
   if is_first_page
