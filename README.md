@@ -26,9 +26,10 @@
 ## Item Property
 
 ```
-/<!--¥s+data-xxx¥s*=¥s*yyy¥s+-->/
+/<!--¥s+data-class¥s*=¥s*yyy¥s*,?data-index¥s*=¥s*"¥d"¥s+-->/
 ```
+を
 ```
-/^¥s*<!--¥s+data-xxx¥s*=¥s*yyy¥s+-->$/
+/^¥s*<!-- .element: class="fragment yyy" data-framgment-index="¥d" -->$/
 ```
-まま使う
+に差し替える。
